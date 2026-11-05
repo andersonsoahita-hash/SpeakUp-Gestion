@@ -280,6 +280,26 @@ input[readonly]{background:var(--sky-l)}
 .dk-slide.cover .dk-title,.dk-slide.end .dk-title{color:#fff}
 .dk-stage:has(.dk-slide.cover) .dk-brand,.dk-stage:has(.dk-slide.end) .dk-brand{color:#fff;opacity:.9}
 .dk-stage:has(.dk-slide.cover) .dk-brand img,.dk-stage:has(.dk-slide.end) .dk-brand img{background:#fff;border-radius:.4em;padding:.15em}
+/* ---- séance 90 min ---- */
+.dk-phasebar{position:absolute;left:1.2rem;bottom:.9rem;font-size:.7rem;font-weight:700;color:#fff;background:rgba(10,18,70,.78);padding:.4rem .9rem;border-radius:99em;z-index:5;letter-spacing:.03em}
+@media (max-width:700px){.dk-phasebar{display:none!important}}
+.dk-agenda{height:100%;display:flex;flex-direction:column;justify-content:center;gap:.55em;padding-top:1.4em}
+.dk-ag{display:grid;grid-template-columns:2em 2em 1fr auto;align-items:center;gap:.8em;background:#fff;border-radius:1em;padding:.55em 1.1em;box-shadow:0 .3em 1em rgba(20,35,138,.08);border-left:.35em solid var(--blue);opacity:0;animation:dkIn .5s both;animation-delay:var(--d)}
+.dk-ag:nth-child(3n+2){border-color:var(--red)}.dk-ag:nth-child(3n){border-color:var(--yellow)}
+.dk-ag .n{font-weight:800;color:var(--blue)}.dk-ag .e{font-size:1.3em}.dk-ag b{display:block;font-size:1em}.dk-ag small{color:#5a6785;font-size:.72em}.dk-ag .m{font-weight:800;color:var(--red);font-size:.85em}
+.dk-bigq{font-family:'Fraunces',serif;font-size:2.5em;font-weight:800;line-height:1.2;text-align:center;max-width:16em;color:var(--navy)}.dk-bigq span{display:block;font-family:'Montserrat',sans-serif;font-weight:500;font-size:.42em;margin-top:.8em;line-height:1.5;color:#33415f}.dk-bigq b{color:var(--red)}
+.dk-goal{text-align:center}.dk-goal .g1{font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red);font-size:.9em}.dk-goal .g2{font-family:'Fraunces',serif;font-size:3.4em;font-weight:800;color:var(--navy);line-height:1.1;margin:.2em 0}.dk-goal .g3{font-size:1.2em;color:#33415f}
+.dk-instr.big{font-size:1.5em}.dk-instr small{font-family:'Montserrat',sans-serif;font-size:.55em;font-weight:500;color:#5a6785;margin-left:.6em}
+.dk-fr.q{font-size:1.05em;font-weight:600}.dk-ans{margin-top:.5em;padding-top:.5em;border-top:.12em dashed var(--sky)}
+.dk-drill{height:100%;display:flex;flex-direction:column;justify-content:center;gap:.6em;padding-top:1em}
+.dk-dr{display:flex;justify-content:space-between;align-items:center;gap:1em;background:#fff;border-radius:1em;padding:.7em 1.3em;box-shadow:0 .3em 1em rgba(20,35,138,.08);border-left:.35em solid var(--blue)}
+.dk-dr .a{display:flex;flex-direction:column}.dk-dr .dk-en{font-size:1.5em}.dk-dr .b{color:#5a6785;font-size:.95em;text-align:right}
+.dk-how{position:absolute;left:4.5em;right:4.5em;bottom:2.2em;text-align:center;font-size:.8em;font-weight:600;color:var(--blue);opacity:0;animation:dkIn .6s both;animation-delay:var(--d,.6s)}
+.dk-steps{height:100%;display:flex;flex-direction:column;justify-content:center;gap:.8em;padding-top:1.2em}
+.dk-stp{display:flex;gap:1em;align-items:center;background:#fff;border-radius:1em;padding:.8em 1.2em;box-shadow:0 .3em 1em rgba(20,35,138,.08);opacity:0;animation:dkIn .5s both;animation-delay:var(--d)}
+.dk-stp>span{flex:none;width:2.2em;height:2.2em;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800}.dk-stp b{display:block;font-size:1.1em}.dk-stp small{color:#5a6785;font-size:.8em}
+.dk-chips{display:flex;gap:.8em;flex-wrap:wrap;justify-content:center}.dk-chips span{background:var(--navy);color:#fff;font-weight:700;padding:.7em 1.3em;border-radius:99em;font-size:1.1em;border-bottom:.2em solid var(--yellow);opacity:0;animation:dkPop2 .6s both;animation-delay:var(--d)}
+.dk-timer{cursor:pointer;background:var(--yellow);color:var(--navy);font-weight:800;font-size:1.8em;padding:.5em 1.4em;border-radius:99em;opacity:0;animation:dkIn .6s both;animation-delay:var(--d)}.dk-timer.end{background:var(--red);color:#fff;animation:none;opacity:1}
 
 </style>
 <script>
@@ -1598,7 +1618,51 @@ function buildSlides(no, opts) {
     ${next ? `<div class="dk-next" style="--d:.8s">Prochaine séance · <b>${no + 1}</b> — ${esc(next.title)}</div>` : '<div class="dk-next" style="--d:.8s">Fin du programme — félicitations !</div>'}
     ${canUnlock && g ? `<button class="dk-btn" data-dk="unlock" style="--d:1s">🔓 Débloquer cette séance pour ${esc(g.nom)}</button>` : ''}
     <div class="dk-part" style="--d:1.1s">SpeakUp English Institute · Own YOUR English</div></div>` });
-  return S_;
+
+  /* ---- Mode « séance 90 min » : on enrobe le contenu du livre avec les phases de classe ---- */
+  const cover = S_[0], endS = S_[S_.length - 1];
+  const kind = k => S_.filter(x => x.k === k), content = S_.filter(x => ['intro', 'expl', 'vocab', 'table', 'callout', 'text'].includes(x.k));
+  const dlg = kind('dialogue'), prac = kind('practice');
+  const PH = { w: 'Phase 1 · Warm-up · 10 min', d: 'Phase 2 · Découverte · 20 min', r: 'Phase 3 · Drill oral · 10 min', o: 'Phase 4 · Dialogue & rôles · 15 min', p: 'Phase 5 · Pratique guidée · 25 min', f: 'Phase 6 · Production libre · 5 min', b: 'Phase 7 · Bilan · 5 min' };
+  const tag = (x, ph) => { x.ph = ph; return x; };
+  if (opts.short) { content.forEach(x => tag(x, '')); return [cover, ...content, ...dlg, ...prac, endS]; }
+  const allV = c.sections.flatMap(sc => sc.blocks.filter(b => b.t === 'v').flatMap(b => b.v)).filter(v => v.en && v.fr);
+  const prevC = COURS[no - 2];
+  const pick = (arr, n) => { if (arr.length <= n) return arr.slice(); const o = []; for (let i = 0; i < n; i++) o.push(arr[Math.floor(i * arr.length / n)]); return o; };
+  const OUT = [cover];
+  const agenda = [['🔥', 'Warm-up', 'Réviser la séance précédente', 10], ['📖', 'Découverte', 'Les nouveautés du chapitre', 20], ['🗣️', 'Drill oral', 'Répéter à voix haute', 10], ['🎭', 'Dialogue & rôles', 'Jouer la scène à deux', 15], ['✍️', 'Pratique guidée', 'Exercices et jeux', 25], ['🎤', 'Production libre', 'Parler 60 secondes', 5], ['✅', 'Bilan', 'Devoirs et suite', 5]];
+  OUT.push({ k: 'agenda', ph: '', html: `${slideTag('Plan de la séance · 1 h 30')}<div class="dk-agenda">${agenda.map(([e, t, d, m], i) => `<div class="dk-ag" style="--d:${(.15 + i * .12).toFixed(2)}s"><span class="n">${i + 1}</span><span class="e">${e}</span><div><b>${t}</b><small>${d}</small></div><span class="m">${m} min</span></div>`).join('')}</div>` });
+  // Phase 1 : warm-up
+  if (prevC) {
+    const pv = []; prevC.sections.forEach(sc => sc.blocks.forEach(b => { if (b.t === 'v') pv.push(...b.v); })); const pw = pick(pv.filter(v => v.en && v.fr), 6);
+    OUT.push(tag({ k: 'warm', html: `${slideTag('Warm-up · Séance ' + (no - 1) + ' — ' + prevC.title)}<div class="dk-instr big" style="--d:.1s">Dites-le en anglais ! <small>Say it in English — then check.</small></div>
+      <div class="dk-vgrid g6" style="padding-top:.4em">${pw.map(v => `<div class="dk-v"><div class="dk-fr q"><b>FR</b>${esc(v.fr)}</div><div class="dk-ans" data-rv><div class="dk-en">${esc(v.en)}</div>${v.ph ? `<div class="dk-ph">${esc(v.ph)}</div>` : ''}</div></div>`).join('')}</div>` }, PH.w));
+  } else {
+    OUT.push(tag({ k: 'warm', html: `${slideTag('Warm-up · Premier jour')}<div class="dk-center"><div class="dk-bigq" style="--d:.15s">Turn to your neighbour.<br><span>Présentez-vous en une phrase, dans la langue que vous voulez : <b>nom, ville, pourquoi l’anglais ?</b></span></div></div>` }, PH.w));
+  }
+  OUT.push(tag({ k: 'warm', html: `${slideTag('Warm-up · Objectif du jour')}<div class="dk-center"><div class="dk-goal" style="--d:.15s"><div class="g1">Today you will learn to…</div><div class="g2">${esc(c.title)}</div><div class="g3">${esc((c.sub || '').split(' • ')[0] || '')}</div></div></div>` }, PH.w));
+  // Phase 2 : découverte (contenu du livre)
+  content.forEach(x => tag(x, PH.d)); OUT.push(...content);
+  // Phase 3 : drill oral
+  chunk(allV, 5).slice(0, 4).forEach((grp, gi, all) => OUT.push(tag({ k: 'drill', html: `${slideTag('Drill oral · Repeat after me ×3' + (all.length > 1 ? `  ·  ${gi + 1}/${all.length}` : ''))}
+    <div class="dk-drill">${grp.map((v, i) => `<div class="dk-dr" data-rv><div class="a"><span class="dk-en">${esc(v.en)}</span>${v.ph ? `<span class="dk-ph">${esc(v.ph)}</span>` : ''}</div><div class="b">${esc(v.fr)}</div></div>`).join('')}</div>
+    <div class="dk-how" style="--d:.6s">🔊 Le formateur dit · tous répètent · puis 2 par 2</div>` }, PH.r)));
+  // Phase 4 : dialogue + rôles
+  dlg.forEach(x => tag(x, PH.o)); OUT.push(...dlg);
+  OUT.push(tag({ k: 'roles', html: `${slideTag('À vous de jouer · Role-play')}<div class="dk-steps">${[['1', 'Lisez le dialogue à deux', '3 min · A et B'], ['2', 'Échangez les rôles', '3 min · B devient A'], ['3', 'Changez les infos', '5 min · mettez VOTRE nom, VOTRE ville, VOTRE situation'], ['4', 'Jouez devant la classe', '2 binômes volontaires']].map(([n, t, d], i) => `<div class="dk-stp" style="--d:${(.15 + i * .15).toFixed(2)}s"><span>${n}</span><div><b>${t}</b><small>${d}</small></div></div>`).join('')}</div>` }, PH.o));
+  // Phase 5 : pratique guidée
+  pick(allV, 8).length && chunk(pick(allV, 8), 4).forEach((grp, gi, all) => OUT.push(tag({ k: 'quiz', html: `${slideTag('Translate challenge · FR → EN' + (all.length > 1 ? `  ·  ${gi + 1}/${all.length}` : ''))}
+    <div class="dk-vgrid g4" style="padding-top:.8em">${grp.map(v => `<div class="dk-v"><div class="dk-fr q"><b>FR</b>${esc(v.fr)}</div>${v.mg ? `<div class="dk-mgl"><b>MG</b>${esc(v.mg)}</div>` : ''}<div class="dk-ans" data-rv><div class="dk-en">${esc(v.en)}</div></div></div>`).join('')}</div>` }, PH.p)));
+  prac.forEach(x => tag(x, PH.p)); OUT.push(...prac);
+  const tri = pick(allV, 3);
+  if (tri.length === 3) OUT.push(tag({ k: 'build', html: `${slideTag('Mini-dialogue builder · en binôme · 4 min')}<div class="dk-center" style="flex-direction:column;gap:1em"><div class="dk-instr" style="--d:.1s">Créez un mini-dialogue de 4 répliques avec ces 3 expressions :</div><div class="dk-chips">${tri.map((v, i) => `<span style="--d:${(.3 + i * .2).toFixed(2)}s">${esc(v.en)}</span>`).join('')}</div><div class="dk-how" style="--d:1s">Puis jouez-le devant un autre binôme. Le groupe vote pour le plus naturel.</div></div>` }, PH.p));
+  OUT.push(tag({ k: 'game', html: `${slideTag('Jeu · Chain game · 4 min')}<div class="dk-center"><div class="dk-bigq" style="--d:.15s">Chain game<br><span>Chacun dit <b>une phrase</b> sur « ${esc(c.title)} ». Impossible de répéter une phrase déjà dite. Celui qui bloque 5 secondes est éliminé… <b>le dernier gagne.</b></span></div></div>` }, PH.p));
+  // Phase 6 : production libre
+  OUT.push(tag({ k: 'talk', html: `${slideTag('Your turn · Parlez 60 secondes')}<div class="dk-center" style="flex-direction:column;gap:.8em"><div class="dk-bigq" style="--d:.1s">Talk about: <span style="color:var(--red)">${esc(c.title)}</span><br><span>Utilisez au moins <b>5 expressions</b> vues aujourd’hui. Un volontaire passe, les autres comptent les expressions.</span></div><div class="dk-timer" data-dk="timer" data-sec="60" style="--d:.5s">⏱ 1:00 — cliquer pour démarrer</div></div>` }, PH.f));
+  // Phase 7 : bilan
+  OUT.push(tag({ k: 'hw', html: `${slideTag('Bilan & devoirs')}<div class="dk-steps">${[['★', '3 mots / expressions que je retiens', 'dites-les à voix haute avant de partir'], ['📖', 'À la maison · relire le chapitre ' + c.chapitre + ' du livre', '15 minutes'], ['✎', 'Refaire « Your 10 minutes of practice »', 'les exercices du livre, à l’écrit'], ['🗣️', 'Dire 5 phrases à voix haute demain', 'sur vos vraies situations' + (next ? ' · prochaine séance : ' + next.title : '')]].map(([n, t, d], i) => `<div class="dk-stp" style="--d:${(.15 + i * .15).toFixed(2)}s"><span>${n}</span><div><b>${t}</b><small>${d}</small></div></div>`).join('')}</div>` }, PH.b));
+  OUT.push(tag(endS, PH.b));
+  return OUT;
 }
 
 /* ---- affichage ---- */
@@ -1614,6 +1678,7 @@ function deckShow(i, dir = 1, fullyRevealed = false) {
   void view.offsetWidth; view.classList.add('go');
   DK.rv = $$('[data-rv]', view); DK.step = 0;
   if (fullyRevealed) { DK.rv.forEach(e => e.classList.add('on')); DK.step = DK.rv.length; }
+  clearInterval(DK.tmr); const pc = $('.dk-phasebar', DK.el); if (pc) { pc.textContent = sl.ph || ''; pc.style.display = sl.ph ? '' : 'none'; }
   $('.dk-prog i', DK.el).style.width = ((DK.i + 1) / DK.slides.length * 100) + '%';
   $('.dk-count', DK.el).textContent = `${DK.i + 1} / ${DK.slides.length}`;
   $('[data-dk=prev]', DK.el).disabled = DK.i === 0; $('[data-dk=next]', DK.el).disabled = DK.i === DK.slides.length - 1 && DK.step >= DK.rv.length;
@@ -1640,8 +1705,8 @@ function openDeck(no, opts = {}) {
   el.innerHTML = `<div class="dk-prog"><i></i></div><div class="dk-stage"><div class="dk-view"></div>
     <div class="dk-brand"><img src="${LOGO}" alt=""><span>SpeakUp English Institute</span></div></div>
     <div class="dk-bar"><button data-dk="prev" title="Précédent (←)">‹</button><span class="dk-count"></span><button data-dk="next" title="Suivant (→ ou Espace)">›</button>
-    <button data-dk="all" title="Tout afficher (A)">☰</button><button data-dk="fs" title="Plein écran (F)">⛶</button><button data-dk="close" title="Fermer (Échap)">✕</button></div>
-    <div class="dk-hint">← → pour naviguer · A tout afficher · F plein écran</div>`;
+    <button data-dk="mode" title="Séance 90 min ⇄ présentation seule">⏱</button><button data-dk="all" title="Tout afficher (A)">☰</button><button data-dk="fs" title="Plein écran (F)">⛶</button><button data-dk="close" title="Fermer (Échap)">✕</button></div>
+    <div class="dk-phasebar"></div><div class="dk-hint">← → pour naviguer · A tout afficher · F plein écran</div>`;
   document.body.appendChild(el); document.body.style.overflow = 'hidden';
   deckFit(); window.addEventListener('resize', deckFit); deckShow(0, 1);
   DK.key = e => { if (!DK.el) return; const k = e.key;
@@ -1652,7 +1717,7 @@ function openDeck(no, opts = {}) {
   document.addEventListener('keydown', DK.key, true);
   el.addEventListener('click', e => {
     const b = e.target.closest('[data-dk]');
-    if (b) { const a = b.dataset.dk; if (a === 'next') deckNext(); else if (a === 'prev') deckPrev(); else if (a === 'close') closeDeck(); else if (a === 'fs') deckFs(); else if (a === 'all') deckAll(); else if (a === 'unlock') deckUnlock(b); return; }
+    if (b) { const a = b.dataset.dk; if (a === 'next') deckNext(); else if (a === 'prev') deckPrev(); else if (a === 'close') closeDeck(); else if (a === 'fs') deckFs(); else if (a === 'all') deckAll(); else if (a === 'mode') { const o = { ...DK.opts, short: !DK.opts.short }; openDeck(DK.no, o); toast(o.short ? 'Présentation seule' : 'Séance complète 90 min', 'ok'); } else if (a === 'timer') deckTimer(b); else if (a === 'unlock') deckUnlock(b); return; }
     if (e.target.closest('.dk-bar')) return;
     const r = el.getBoundingClientRect(); (e.clientX - r.left) < r.width * .25 ? deckPrev() : deckNext();
   });
@@ -1663,6 +1728,12 @@ function deckFs() { const el = DK.el; if (!el) return; if (document.fullscreenEl
 async function deckUnlock(btn) {
   try { btn.disabled = true; await api('unlock', { groupe_id: DK.opts.gid, seance_no: DK.no, open: true }); await refresh(); btn.textContent = '✅ Séance débloquée pour le groupe'; toast(`Séance ${DK.no} débloquée`, 'ok'); }
   catch (e) { btn.disabled = false; toast(e.message, 'err'); }
+}
+
+function deckTimer(el) {
+  if (DK.tmr) { clearInterval(DK.tmr); DK.tmr = null; }
+  let t = Number(el.dataset.sec) || 60; const show = () => { el.textContent = t > 0 ? `⏱ ${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` : '⏰ Time’s up!'; el.classList.toggle('end', t <= 0); };
+  show(); DK.tmr = setInterval(() => { t--; show(); if (t <= 0) { clearInterval(DK.tmr); DK.tmr = null; } }, 1000);
 }
 
 
