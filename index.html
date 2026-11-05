@@ -1466,7 +1466,11 @@ document.addEventListener('click', e => {
 document.addEventListener('submit', async e => {
   const form = e.target.closest('form[data-form]'); if (!form) return; e.preventDefault();
   const fn = FORMS[form.dataset.form]; if (!fn) return;
+  if (form.dataset.busy) return;                       // anti double-envoi : un seul enregistrement par formulaire
+  form.dataset.busy = '1'; const btns = $$('button', form).filter(x => x.type !== 'button'); const old = btns.map(x => x.innerHTML);
+  btns.forEach(x => { x.disabled = true; }); const main = btns[btns.length - 1]; if (main) main.innerHTML = 'Enregistrement…';
   try { await fn(form); } catch (err) { toast(err.message || String(err), 'err'); }
+  finally { delete form.dataset.busy; if (document.body.contains(form)) btns.forEach((x, i) => { x.disabled = false; x.innerHTML = old[i]; }); }
 });
 document.addEventListener('input', e => {
   const t = e.target;
